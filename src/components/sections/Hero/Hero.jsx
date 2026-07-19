@@ -13,6 +13,7 @@ import Container from "../../common/Container";
 import Button from "../../common/Button";
 import Badge from "../../common/Badge";
 import ArchitectureCard from "./ArchitectureCard";
+import Reveal from "../../common/Reveal";
 
 const techStack = [
   {

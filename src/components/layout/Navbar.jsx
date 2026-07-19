@@ -1,53 +1,40 @@
 import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import Container from "../common/Container";
 
 const navLinks = [
-  { name: "About", href: "#about" },
-  { name: "Skills", href: "#skills" },
-  { name: "Experience", href: "#experience" },
-  { name: "Projects", href: "#projects" },
-  { name: "Architecture", href: "#architecture" },
-  { name: "AI", href: "#ai" },
-  { name: "Contact", href: "#contact" },
+  { name: "Home", path: "/" },
+  { name: "About", path: "/about" },
+  { name: "Skills", path: "/skills" },
+  { name: "Experience", path: "/experience" },
+  { name: "Projects", path: "/projects" },
+
+  { name: "Contact", path: "/contact" },
 ];
 
 const Navbar = () => {
   const [mobileMenu, setMobileMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [active, setActive] = useState("");
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 40);
+    };
 
-      let current = "";
-
-      navLinks.forEach((item) => {
-        const section = document.querySelector(item.href);
-
-        if (!section) return;
-
-        const top = section.offsetTop - 120;
-        const height = section.offsetHeight;
-
-        if (
-          window.scrollY >= top &&
-          window.scrollY < top + height
-        ) {
-          current = item.href;
-        }
-      });
-
-      setActive(current);
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setMobileMenu(false);
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleResize);
 
-    handleScroll();
-
-    return () =>
+    return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   return (
@@ -59,56 +46,74 @@ const Navbar = () => {
       }`}
     >
       <Container className="flex h-20 items-center justify-between">
-        <a
-          href="/"
+        {/* Logo */}
+        <NavLink
+          to="/"
           className="text-2xl font-bold tracking-wide"
         >
           Suraj
           <span className="text-blue-500">.</span>
-        </a>
+        </NavLink>
 
+        {/* Desktop Navigation */}
         <nav className="hidden md:block">
           <ul className="flex items-center gap-8">
             {navLinks.map((item) => (
               <li key={item.name}>
-                <a
-                  href={item.href}
-                  className={`transition duration-300 ${
-                    active === item.href
-                      ? "text-blue-500"
-                      : "text-slate-300 hover:text-white"
-                  }`}
+                <NavLink
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `relative pb-2 transition duration-300 ${
+                      isActive
+                        ? "text-blue-500"
+                        : "text-slate-300 hover:text-white"
+                    }`
+                  }
                 >
-                  {item.name}
-                </a>
+                  {({ isActive }) => (
+                    <>
+                      {item.name}
+
+                      <span
+                        className={`absolute bottom-0 left-0 h-[2px] bg-blue-500 transition-all duration-300 ${
+                          isActive ? "w-full" : "w-0"
+                        }`}
+                      />
+                    </>
+                  )}
+                </NavLink>
               </li>
             ))}
           </ul>
         </nav>
 
+        {/* Mobile Menu Button */}
         <button
-          className="md:hidden"
           onClick={() => setMobileMenu(!mobileMenu)}
+          className="md:hidden"
         >
-          {mobileMenu ? (
-            <X size={28} />
-          ) : (
-            <Menu size={28} />
-          )}
+          {mobileMenu ? <X size={28} /> : <Menu size={28} />}
         </button>
       </Container>
 
+      {/* Mobile Menu */}
       {mobileMenu && (
         <div className="border-t border-slate-800 bg-[#050816] md:hidden">
           {navLinks.map((item) => (
-            <a
+            <NavLink
               key={item.name}
-              href={item.href}
+              to={item.path}
               onClick={() => setMobileMenu(false)}
-              className="block border-b border-slate-800 px-6 py-5 text-slate-300 transition hover:bg-slate-900"
+              className={({ isActive }) =>
+                `block border-b border-slate-800 px-6 py-5 transition ${
+                  isActive
+                    ? "bg-slate-900 text-blue-500"
+                    : "text-slate-300 hover:bg-slate-900 hover:text-white"
+                }`
+              }
             >
               {item.name}
-            </a>
+            </NavLink>
           ))}
         </div>
       )}
